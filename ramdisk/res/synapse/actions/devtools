@@ -1,0 +1,55 @@
+timestamp=`date +%Y-%m-%d.%H.%M.%S`;
+
+case $1 in
+  bootloader)
+    block=/dev/block/platform/omap/omap_hsmmc.0/by-name/param;
+    locked=01;
+    unlocked=00;
+
+    lockstate=`dd ibs=1 count=1 skip=124 obs=1 if=$block 2> /dev/null | od -hv | head -n 1 | awk '{ print $2 }' | cut -c 3-`;
+
+    if [ "$lockstate" == $locked ]; then
+      echo "Unlocking...";
+      setstate=$unlocked;
+    elif [ "$lockstate" == $unlocked ]; then
+      echo "Locking...";
+      setstate=$locked;
+    else
+      echo "Unknown state. No changes made.";
+    fi;
+    if [ "$setstate" ]; then
+      echo -ne "\x$setstate" | dd obs=1 count=1 seek=124 of=$block 2> /dev/null;
+    fi;
+  ;;
+
+  logcat)
+    saved="/sdcard/logcat-$timestamp.txt";
+    logcat -d > $saved;
+  ;;
+
+  dmesg)
+    saved="/sdcard/dmesg-$timestamp.txt";
+    dmesg > $saved;
+  ;;
+
+  kmsg)
+    kmsg=/proc/last_kmsg;
+    if [ -f $kmsg ]; then
+      saved="/sdcard/last_kmsg-$timestamp.txt";
+      cp -f $kmsg $saved;
+    else
+      echo "$kmsg not found.";
+    fi;
+  ;;
+
+  reboot)
+    sleep 1;
+    reboot $2;
+  ;;
+esac;
+
+case $1 in
+  logcat|dmesg|kmsg)
+    echo "Saving logfile to $saved";
+  ;;
+esac;

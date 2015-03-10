@@ -1,0 +1,71 @@
+cat << CTAG
+{
+  name:Voltage,
+  elements:[
+    { SDescription:{
+        description:"Decreasing voltages will lower heat and power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltages may cause instability and freezes."
+    }},
+    { STitleBar:{
+        title:"MPU Voltages"
+    }},
+`
+    while read FREQ UVOLT UNIT; do
+        echo '{ SSeekBar:{
+                  title:"'${FREQ//mhz\:/}' MHz",
+                  min:700, max:1500, step:1, unit:"' ${UNIT}'",
+                  default:'$UVOLT',
+                  action:"voltage cpuvolt '${FREQ}'"
+              }},
+        ';
+    done < /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table;
+`
+    { STitleBar:{
+        title:"Core Voltages"
+    }},
+`
+    VOLTAGE=0
+
+    while read UVOLT UNIT; do
+        VOLTAGE=$((VOLTAGE + 1));
+        echo '{ SSeekBar:{
+                  title:"Voltage '${VOLTAGE}'",
+                  min:700, max:1500, step:1, unit:"' ${UNIT}'",
+                  default:'$UVOLT',
+                  action:"voltage corevolt '${VOLTAGE}'"
+              }},
+        ';
+    done < /sys/devices/virtual/misc/customvoltage/core_voltages;
+`
+    { STitleBar:{
+        title:"IVA Voltages"
+    }},
+`
+while read UVOLT UNIT; do
+    VOLTAGE=$((VOLTAGE + 1));
+    echo '{ SSeekBar:{
+              title:"Voltage '${VOLTAGE}'",
+              min:700, max:1500, step:1, unit:"' ${UNIT}'",
+              default:'$UVOLT',
+              action:"voltage ivavolt '${VOLTAGE}'"
+          }},
+    ';
+done < /sys/devices/virtual/misc/customvoltage/iva_voltages;
+if [ -f /sys/devices/virtual/misc/customvoltage/regulator_voltages ]; then
+    echo '{ STitleBar:{
+              title:"Regulator Voltages"
+          }},
+    ';
+    while read FREQ UVOLT UNIT; do
+        echo '{ SSeekBar:{
+                  title:"'${FREQ//\:/}'",
+                  min:800, max:3500, step:1, unit:"' ${UNIT}'",
+                  default:'$UVOLT',
+                  action:"voltage regulatorvolt '${FREQ}'",
+              }},
+        ';
+    done < /sys/devices/virtual/misc/customvoltage/regulator_voltages;
+fi;
+`
+  ]
+}
+CTAG

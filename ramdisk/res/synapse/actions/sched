@@ -1,0 +1,16 @@
+features=/sys/kernel/debug/sched_features;
+sched=$(echo $1 | sed 's/^NO_//g');
+
+if [[ `cat $features` == *$sched* ]]; then
+
+  if [[ ! -z $2 ]]; then
+    case $2 in
+      0) echo "NO_$sched" > $features;;
+      1) echo "$sched" > $features;;
+    esac;
+  fi;
+
+  grep -oq NO_$sched $features;
+  echo $?;
+fi;
+

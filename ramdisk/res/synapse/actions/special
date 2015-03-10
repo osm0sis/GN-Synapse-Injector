@@ -1,0 +1,76 @@
+if [ -f $1 ]; then
+
+  case $1 in
+    /sys/devices/platform/omapdss/manager0/gamma)
+      if [[ ! -z $2 ]]; then
+        [ "$2" != `cat $1` ] && echo $2 > $1;
+      fi;
+      echo `cat $1`;
+    ;;
+
+    /sys/kernel/logger_mode/logger_mode)
+      if [[ ! -z $2 ]]; then
+        echo $2 > $1;
+      fi;
+      echo `cat /sys/kernel/logger_mode/logger_mode | tr -cd [0-9]`;
+    ;;
+
+    /sys/module/omap_temp_sensor/parameters/throttle_enabled|/sys/module/sync/parameters/fsync_enabled)
+      if [[ ! -z $2 ]]; then
+        [ "$2" == 1 ] && echo Y > $1;
+        [ "$2" == 0 ] && echo N > $1;
+      fi;
+      [ `cat $1` == Y ] && echo 1;
+      [ `cat $1` == N ] && echo 0;
+    ;;
+
+    /sys/module/panel_s6e8aa0/parameters/contrast)
+      if [[ ! -z $2 ]]; then
+        echo $2 > $1;
+        echo `cat /sys/class/misc/colorcontrol/multiplier` > /sys/class/misc/colorcontrol/multiplier;
+      fi;
+      echo `cat $1`;
+    ;;
+
+    /sys/vibrator/pwmvalue)
+      if [[ ! -z $2 ]]; then
+        echo $2 > $1;
+        echo 300 > /sys/devices/virtual/timed_output/vibrator/enable;
+      fi;
+      echo `cat $1`;
+    ;;
+
+    /proc/sys/vm/laptop_mode)
+      if [[ ! -z $2 ]]; then
+        [ "$2" == 1 ] && echo 5 > $1;
+        [ "$2" == 0 ] && echo 0 > $1;
+      fi;
+      [ `cat $1` == 5 ] && echo 1;
+      [ `cat $1` == 0 ] && echo 0;
+    ;;
+
+    /proc/sys/vm/lowmem_reserve_ratio)
+      if [[ ! -z $2 ]]; then
+        echo "$2\t$2" > $1;
+      fi;
+      echo `cat $1 | cut -f1`;
+    ;;
+
+    /data/trimhelper)
+      if [[ ! -z $2 ]]; then
+        sed -i "3s/.*/$2/" $1;
+      fi;
+      echo `cat $1 | sed -n '3p'`;
+    ;;
+
+    /sepolicy)
+      if [[ ! -z $2 ]]; then
+        setenforce $2;
+      fi;
+      [ `getenforce` == "Enforcing" ] && echo 1;
+      [ `getenforce` == "Permissive" ] && echo 0;
+    ;;
+  esac;
+
+fi;
+

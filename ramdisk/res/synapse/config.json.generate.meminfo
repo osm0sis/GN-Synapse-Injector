@@ -1,0 +1,22 @@
+cat << CTAG
+{
+  name:Mem Info,
+  elements:[
+    { STitleBar:{
+        title:"Memory Information"
+    }},
+    { SLiveLabel:{
+        action:"live meminfo 1 10"
+    }},
+    { SLiveLabel:{
+        action:"live meminfo 11 20"
+    }},
+    { SLiveLabel:{
+        action:"live meminfo 21 30"
+    }},
+    { SLiveLabel:{
+        action:"live meminfo 31 40"
+    }}
+  ]
+}
+CTAG

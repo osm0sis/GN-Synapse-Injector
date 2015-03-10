@@ -1,0 +1,34 @@
+cat << CTAG
+{
+  name:VM Stats,
+  elements:[
+    { STitleBar:{
+        title:"Virtual Memory Statistics"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 1 10"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 11 20"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 21 30"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 31 40"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 41 50"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 51 59"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 60 69"
+    }},
+    { SLiveLabel:{
+        action:"live vmstats 70 79"
+    }}
+  ]
+}
+CTAG

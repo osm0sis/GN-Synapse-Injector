@@ -1,0 +1,59 @@
+cat << CTAG
+{
+  name:Dev Tools,
+  elements:[
+    { STitleBar:{
+        title:"Kernel Info"
+    }},
+`
+    cat /proc/version | sed -e 's/ (gcc/\\ngcc/g;s/ ) /\\n/g' | while read line; do
+        echo '{ SDescription:{
+                  description:"'$line'"
+              }},
+              { SSpacer:{ }},
+        ';
+    done;
+`
+    { STitleBar:{
+        title:"Bootloader Status"
+    }},
+    { SLiveLabel:{
+        action:"live bootloader"
+    }},
+    { SButton:{
+        label:"Toggle Lockstate",
+        action:"devtools bootloader"
+    }},
+    { STitleBar:{
+        title:"Log Creation"
+    }},
+    { SButton:{
+        label:"Save logcat",
+        action:"devtools logcat"
+    }},
+    { SButton:{
+        label:"Save dmesg",
+        action:"devtools dmesg"
+    }},
+    { SButton:{
+        label:"Copy last_kmsg",
+        action:"devtools kmsg"
+    }},
+    { STitleBar:{
+        title:"Reboot"
+    }},
+    { SButton:{
+        label:"Reboot Device",
+        action:"devtools reboot"
+    }},
+    { SButton:{
+        label:"Reboot Recovery",
+        action:"devtools reboot recovery"
+    }},
+    { SButton:{
+        label:"Reboot Bootloader",
+        action:"devtools reboot bootloader"
+    }}
+  ]
+}
+CTAG

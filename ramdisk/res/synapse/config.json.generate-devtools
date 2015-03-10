@@ -1,0 +1,11 @@
+cat << CTAG
+{
+  sections:[
+    `. /res/synapse/config.json.generate.devtools`,
+    `. /res/synapse/config.json.generate.usage`,
+    `. /res/synapse/config.json.generate.meminfo`,
+    `. /res/synapse/config.json.generate.vmstats`,
+    `. /res/synapse/config.json.generate.backup-restore`
+  ]
+}
+CTAG

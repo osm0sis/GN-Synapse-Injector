@@ -1,0 +1,48 @@
+case $1 in
+  offset)
+    P=/sys/class/misc/colorcontrol/v1_offset;
+  ;;
+  multiplier)
+    P=/sys/class/misc/colorcontrol/multiplier;
+  ;;
+esac;
+
+read() {
+  VALUE=0;
+  for COLOR in `cat $P` ; do
+    VALUE=$((VALUE + 1));
+    if [ "$VALUE" == $1 ]; then
+      if [ "$P" == "/sys/class/misc/colorcontrol/multiplier" ]; then
+        echo ${COLOR//0000000/};
+      else
+        echo $COLOR;
+      fi;
+      return;
+    fi;
+  done;
+}
+
+write() {
+  COLORARR="";
+  VALUE=0;
+  for COLOR in `cat $P`; do
+    VALUE=$((VALUE + 1));
+    if [ "$VALUE" == $1 ]; then
+      if [ "$P" == "/sys/class/misc/colorcontrol/multiplier" ]; then
+        COLORARR="$COLORARR ${2}0000000";
+      else
+        COLORARR="$COLORARR $2";
+      fi;
+    else
+      COLORARR="$COLORARR $COLOR";
+    fi;
+  done;
+  echo $COLORARR > $P;
+}
+
+if [[ ! -z $3 ]]; then
+  write $2 $3;
+fi
+
+echo `read $2`;
+

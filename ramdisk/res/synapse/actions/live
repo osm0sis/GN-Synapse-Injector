@@ -1,0 +1,115 @@
+freq() { echo "$((`cat /sys/devices/system/cpu/cpu$1/cpufreq/$2_cur_freq` / 1000)) MHz"; }
+volt() { echo "$((`cat /sys/kernel/debug/voltage/vdd_$1/curr_vp_volt` / 1000)) mV"; }
+readlines() { awk -v startl=${2:-1} -v nlines=${1:-10} ' NR - (startl-1) > nlines { exit( 0 ); } NR >= startl '; }
+
+case $1 in
+  cpufreq)
+    if [ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq ]; then
+      CPUFREQONE=$(freq 0 scaling);
+    else
+      CPUFREQONE=Offline;
+    fi
+
+    if [ -e /sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq ]; then
+      CPUFREQTWO=$(freq 1 scaling);
+    else
+      CPUFREQTWO=Offline;
+    fi
+
+    VOLT=$(volt mpu);
+    test ${#VOLT} -gt 6 && spacer=" - " || spacer="-";
+
+    echo "Core 1: $CPUFREQONE     $VOLT@nCore 2: $CPUFREQTWO         $spacer         $dummy";
+  ;;
+
+  temp)
+    CPU="$(awk -v cpu=`cat /sys/devices/platform/omap/omap_temp_sensor.0/temperature` 'BEGIN { print cpu / 1000 }')°C";
+    BATTERY="$((`cat /sys/devices/platform/omap/omap_i2c.4/i2c-4/4-0036/power_supply/battery/temp` / 10))°C";
+
+    echo "CPU: $CPU       Battery: $BATTERY";
+  ;;
+
+  gpu)
+    GPUFREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/gpu_clock);
+    CVOLT=$(volt core);
+
+    echo "GPU: ${GPUFREQ//h/H}      $CVOLT";
+  ;;
+
+  gpu-iva)
+    if [ -f "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency" ]; then
+      GPUFREQ=$(echo "$((`cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency` / 1000000)) MHz");
+    else
+      GPUFREQ=$(freq 0 gpu);
+    fi;
+    CVOLT=$(volt core);
+    IVAFREQ=$(freq 0 iva);
+    IVOLT=$(volt iva);
+
+    test ${#CVOLT} -gt 6 && spacer="  " || spacer="";
+
+    echo "GPU: $GPUFREQ      $CVOLT@n    IVA: $IVAFREQ   $spacer   $IVOLT  $dummy";
+  ;;
+
+  entropy)
+    echo "`cat /proc/sys/kernel/random/entropy_avail`";
+  ;;
+
+  meminfo)
+    echo "`cat /proc/meminfo | readlines r $2 $3 | awk 1 ORS='@n'`";
+  ;;
+
+  vmstats)
+    echo "`cat /proc/vmstat | readlines r $2 $3 | awk 1 ORS='@n'`";
+  ;;
+
+  bootloader)
+    lockstate=`dd ibs=1 count=1 skip=124 obs=1 if=/dev/block/platform/omap/omap_hsmmc.0/by-name/param 2> /dev/null | od -hv | head -n 1 | awk '{ print $2 }' | cut -c 3-`;
+    if [ "$lockstate" == "01" ]; then
+      echo "Locked";
+    elif [ "$lockstate" == "00" ]; then
+      echo "Unlocked";
+    else
+      echo "Unknown";
+    fi;
+  ;;
+
+  uptime)
+    UPTIME=`uptime`;
+    echo "${UPTIME//, /@n}";
+  ;;
+
+  unused)
+    UNUSED="";
+    while read FREQ TIME; do
+      FREQ="$((FREQ / 1000)) MHz";
+      if [ $TIME -eq "0" ]; then
+        UNUSED="$UNUSED$FREQ ";
+      fi;
+    done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+
+    echo "$UNUSED";
+  ;;
+
+  states)
+    STATE="";
+    CNT=0;
+    SUM=`awk '{s+=$2} END {print s}' /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state`;
+
+    while read FREQ TIME; do
+      if [ "$CNT" -ge $2 ] && [ "$CNT" -le $3 ]; then
+        FREQ="$((FREQ / 1000)) MHz";
+        if [ $TIME -gt "0" ]; then
+          PERC=`awk "BEGIN { print ( ($TIME / $SUM) * 100) }"`;
+          PERC="`printf "%0.1f\n" $PERC`%";
+          TIME=$((TIME / 100));
+          STATE="$STATE $FREQ - `echo - | awk -v "S=$TIME" '{printf "%dh:%dm:%ds",S/(60*60),S%(60*60)/60,S%60}'` - ($PERC)@n";
+        fi;
+      fi;
+      CNT=$((CNT+1));
+    done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+
+    echo "$STATE";
+  ;;
+esac;
+

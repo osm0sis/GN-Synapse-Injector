@@ -1,0 +1,76 @@
+cat << CTAG
+{
+  name:Panel,
+  elements:[
+    { STitleBar:{
+        title:"Screen"
+    }},
+    { SSeekBar:{
+        title:"Trinity Contrast",
+        description:"Set the luminance difference between dark and light.",
+        min:-24, max:16,
+        default:`cat /sys/module/panel_s6e8aa0/parameters/contrast`,
+        action:"special /sys/module/panel_s6e8aa0/parameters/contrast"
+    }},
+    { SSeekBar:{
+        title:"OMAP Gamma Contrast",
+        description:"Set midtones (middle gray levels).",
+        default:`cat /sys/devices/platform/omapdss/manager0/gamma`,
+        action:"special /sys/devices/platform/omapdss/manager0/gamma",
+        values:{ 0:"0: Disabled", 1:"1", 2:"2", 3:"3", 4:"4",
+                 5:"5: Default", 6:"6", 7:"7", 8:"8", 9:"9", 10:"10"
+        }
+    }},
+    { SCheckBox:{
+        label:"Content Adaptive Brightness",
+        description:"Decreases the brightness of mostly-white backgrounds to save battery.",
+        default:`cat /sys/class/backlight/s6e8aa0/acl_set`,
+        action:"generic /sys/class/backlight/s6e8aa0/acl_set"
+    }},
+    { SPane:{
+        title:"Color Multiplier",
+        description:"Adjust RGB color levels."
+    }},
+`
+    VALUE=0;
+
+    for COLOR in \`cat /sys/class/misc/colorcontrol/multiplier\`; do
+        VALUE=$((VALUE + 1));
+        echo '{ SSeekBar:{ ';
+        case $VALUE in
+            1) echo 'title:"Red"' ;;
+            2) echo 'title:"Green"' ;;
+            3) echo 'title:"Blue"' ;;
+        esac;
+        echo ', max:400,
+                action:"color multiplier '${VALUE}'" }},
+        ';
+    done;
+`
+    { SCheckBox:{
+        label:"Safety Limit",
+        description:"Lock color values to a range with a possibly decreased likelihood of causing screen burn-in.",
+        default:`cat /sys/class/misc/colorcontrol/safety_enabled`,
+        action:"generic /sys/class/misc/colorcontrol/safety_enabled"
+    }},
+    { SPane:{
+        title:"RGB Gamma Offset",
+        description:"Gamma Offset controls shadows/blacks of the display by changing the brightness/color tint levels while leaving midtones and highlight areas unaffected."
+    }},
+`
+    for COLOR in \`cat /sys/class/misc/colorcontrol/v1_offset\`; do
+        VALUE=$((VALUE + 1));
+        echo '{ SSeekBar:{ ';
+        case $VALUE in
+            1) echo 'title:"Red"' ;;
+            2) echo 'title:"Green"' ;;
+            3) echo 'title:"Blue"' ;;
+        esac;
+        echo ', min:-30, max:30,
+                action:"color offset '${VALUE}'" }},
+        ';
+    done;
+`
+  ]
+}
+CTAG

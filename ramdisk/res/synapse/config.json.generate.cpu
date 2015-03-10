@@ -1,0 +1,182 @@
+polar_to_bool() {
+    [ `cat $1` == "Y" ] && echo "1";
+    [ `cat $1` == "N" ] && echo "0";
+}
+
+cat << CTAG
+{
+  name:CPU,
+  elements:[
+    { STitleBar:{
+        title:"Temperature"
+    }},
+    { SLiveLabel:{
+        refresh:1000,
+        action:"live temp"
+    }},
+    { STitleBar:{
+        title:"CPU Frequency Scaling"
+    }},
+
+    { SLiveLabel:{
+        title:"CPU Frequency",
+        refresh:500,
+        action:"live cpufreq"
+    }},
+    { SSeekBar:{
+        title:"CPU Max Frequency",
+        description:"Set the maximum frequency the CPU scales up to.",
+        default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`,
+        action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
+        values:{
+`
+            while read FREQ TIME; do
+                LABEL=$((FREQ / 1000));
+                echo "$FREQ:\"${LABEL} MHz\", ";
+            done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+`
+        }
+    }},
+    { SSeekBar:{
+        title:"CPU Min Frequency",
+        description:"Set the minimum frequency the CPU scales down to.",
+        default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`,
+        action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
+        values:{
+`
+            while read FREQ TIME; do
+                LABEL=$((FREQ / 1000));
+                echo "$FREQ:\"${LABEL} MHz\", ";
+            done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+`
+        }
+    }},
+`
+if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/screen_off_max_freq" ]; then
+    echo '{ SSeekBar:{
+              title:"CPU Max Screen Off Frequency",
+              description:"Set the maximum frequency the CPU scales up to when the screen is off.",
+              default:'$(cat /sys/devices/system/cpu/cpu0/cpufreq/screen_off_max_freq)',
+              action:"generic /sys/devices/system/cpu/cpu0/cpufreq/screen_off_max_freq",
+              values:{
+    ';
+    if [ "$(cat /sys/devices/system/cpu/cpu0/cpufreq/screen_off_max_freq)" == 0 ]; then
+        echo "0:\"0 MHz\",";
+    fi;
+    while read FREQ TIME; do
+        LABEL=$((FREQ / 1000));
+        echo "$FREQ:\"${LABEL} MHz\", ";
+    done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+    echo '    }
+          }},
+    ';
+fi;
+if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/screen_on_min_freq" ]; then
+    echo '{ SSeekBar:{
+        title:"CPU Min Screen On Frequency",
+        description:"Set the minimum frequency the CPU scales down to when the screen is on.",
+        default:'$(cat /sys/devices/system/cpu/cpu0/cpufreq/screen_on_min_freq)',
+        action:"generic /sys/devices/system/cpu/cpu0/cpufreq/screen_on_min_freq",
+        values:{
+    ';
+    if [ "$(cat /sys/devices/system/cpu/cpu0/cpufreq/screen_on_min_freq)" == 0 ]; then
+        echo "0:\"0 MHz\",";
+    fi;
+    while read FREQ TIME; do
+        LABEL=$((FREQ / 1000));
+        echo "$FREQ:\"${LABEL} MHz\", ";
+    done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+    echo '    }
+          }},
+    ';
+fi;
+if [ -f "/sys/devices/system/cpu/sched_mc_power_savings" ]; then
+    echo '{ STitleBar:{
+              title:"Power Saving"
+          }},
+          { SSeekBar:{
+              title:"Multicore Power Savings",
+              description:"Try to group tasks into the least cores possible. The higher the value, the more aggressive.",
+              default:'$(cat /sys/devices/system/cpu/sched_mc_power_savings)',
+              action:"generic /sys/devices/system/cpu/sched_mc_power_savings",
+              values:{ 0:"0: Disabled", 1:"1", 2:"2" }
+          }},
+    ';
+fi;
+`
+    { STitleBar:{
+        title:"Thermal Framework"
+    }},
+`
+if [ -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" ]; then
+    echo '{ SCheckBox:{
+              label:"Thermal Throttling",
+              description:"Force lower CPU frequencies when temperature reaches the throttling limit, to avoid overheating.",
+              default:'$(polar_to_bool /sys/module/omap_temp_sensor/parameters/throttle_enabled)',
+              action:"special /sys/module/omap_temp_sensor/parameters/throttle_enabled"
+          }},
+    ';
+fi;
+`
+    { SSeekBar:{
+        title: "Temperature Limit",
+`
+if [ ! -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" ]; then
+    echo 'description:"Force lower CPU frequencies when temperature reaches the throttling limit, to avoid overheating.",';
+fi;
+`
+        min:60000, max:90000, step:1000, weight:0.001, unit:"°C",
+        action:"generic /sys/class/misc/tempcontrol/templimit"
+    }},
+`
+if [ -d "/sys/kernel/debug/smartreflex" ]; then
+    echo '{ SPane:{
+              title:"SmartReflex",
+              description:"SmartReflex is a power management technology developed by Texas Instruments. It dynamically undervolts to what it determines is the lowest stable voltage at each frequency."
+          }},
+    ';
+    VALUE=0;
+    for SR in mpu core iva; do
+        VALUE=$((VALUE + 1));
+
+        echo '{ SCheckBox:{';
+        case $VALUE in
+            1) echo 'label:"MPU Calibration"' ;;
+            2) echo 'label:"Core Calibration"' ;;
+            3) echo 'label:"IVA Calibration"' ;;
+        esac;
+        echo ', action:"generic /sys/kernel/debug/smartreflex/sr_$SR/autocomp" }},';
+
+        if [ -f "/sys/kernel/debug/smartreflex/sr_$SR/enable_highvolt" ]; then
+            echo '{ SCheckBox:{';
+            case $VALUE in
+                1) echo 'label:"MPU Highvolt",
+                         description:"Let SmartReflex calibrate MPU voltages for high frequencies."
+                   ' ;;
+                2) echo 'label:"Core Highvolt",
+                         description:"Let SmartReflex calibrate Core voltages for high frequencies."
+                   ' ;;
+                3) echo 'label:"IVA Highvolt",
+                         description:"Let SmartReflex calibrate IVA voltages for high frequencies."
+                   ' ;;
+            esac;
+            echo ', action:"generic /sys/kernel/debug/smartreflex/sr_'$SR'/enable_highvolt" }},';
+        fi;
+
+        if [ -f "/sys/kernel/debug/smartreflex/sr_$SR/vmin" ]; then
+            echo '{ SSeekBar:{';
+            case $VALUE in
+                1) echo 'title:"MPU Min Calibrated Voltage"' ;;
+                2) echo 'title:"Core Min Calibrated Voltage"' ;;
+                3) echo 'title:"IVA Min Calibrated Voltage"' ;;
+            esac;
+            echo ', min:700000, max:900000, step:5000, weight:0.001, unit:" mV",
+                    action:"generic /sys/kernel/debug/smartreflex/sr_'$SR'/vmin" }},
+            ';
+        fi;
+    done;
+fi;
+`
+  ]
+}
+CTAG

@@ -1,0 +1,5 @@
+service uci /sbin/uci
+	class main
+	user root
+	group root
+	oneshot

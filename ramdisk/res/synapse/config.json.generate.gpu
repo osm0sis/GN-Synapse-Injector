@@ -1,0 +1,99 @@
+cat << CTAG
+{
+  name:GPU,
+  elements:[
+    { STitleBar:{
+`
+if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/iva_cur_freq" ]; then
+    echo 'title:"GPU / IVA Frequency"';
+else
+    echo 'title:"GPU Frequency"';
+fi;
+`
+    }},
+    { SLiveLabel:{
+        refresh:1000,
+`
+if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/iva_cur_freq" ]; then
+    echo 'action:"live gpu-iva"';
+else
+    echo 'action:"live gpu"';
+fi;
+`
+    }},
+`
+if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_oc" -o -f "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_limit" ]; then
+    echo '{ STitleBar:{
+              title:"GPU Frequency Scaling"
+          }},
+    ';
+    if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_oc" ]; then
+        echo '{ SSeekBar:{
+                  title:"GPU OC Frequency",
+                  description:"Overclocks the upper frequency the GPU scales to.",
+                  default:'$(cat /sys/devices/system/cpu/cpu0/cpufreq/gpu_oc)',
+                  action:"generic /sys/devices/system/cpu/cpu0/cpufreq/gpu_oc",
+                  values:{ 0:"0: 307 MHz", 1:"1: 384 MHz", 2:"2: 512 MHz" }
+              }},
+        ';
+    else
+        echo '{ SSeekBar:{
+                  title:"GPU Max Frequency",
+                  description:"Set the maximum frequency the GPU scales up to.",
+                  default:'$(cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_limit)',
+                  action:"generic /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_limit",
+                  values:{
+        ';
+        for FREQ in $(cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_list); do
+            LABEL=$((FREQ / 1000000));
+            echo "$FREQ:\"${LABEL} MHz\", ";
+        done;
+        echo '    }
+              }},
+              { SPane:{
+                  title:"GPU Governor",
+                  description:"The GPU governor determines how the GPU responds to changes in workload. Changing the governor will impact how the GPU scales through the frequency steps available."
+              }},
+              { SOptionList:{
+                  default:'$(cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor)',
+                  action:"generic /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor",
+                  values:[
+        ';
+        for GOVERNOR in $(cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/governor_list); do
+            echo "\"$GOVERNOR\",";
+        done;
+        echo '    ],
+                  notify:[
+                      { on:APPLY,
+                        do:[ REFRESH, CANCEL ],
+                        to:"/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq"
+                      },
+                      { on:REFRESH,
+                        do:REFRESH,
+                        to:"/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq"
+                      }
+                  ]
+              }},
+              { SPane:{
+                  title:"GPU Governor Tunables",
+                  description:"Auto-generated controls for the current governor."
+              }},
+              { STreeDescriptor:{
+                  path:"/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq",
+                  generic:{ directory:
+                      { STreeDescriptor:{
+                          generic:{ 
+                              directory:{ },
+                              element:{ SGeneric:{ title:"@NAME" }}
+                          },
+                          exclude:[ "load" ]
+                      }}
+                  }
+              }}
+        ';
+    fi;
+fi;
+`
+  ]
+}
+CTAG

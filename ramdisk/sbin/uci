@@ -1,0 +1,27 @@
+#!/system/bin/sh
+
+CONFIG_JSON=/res/synapse/config.json;
+ACTION_SCRIPTS=/res/synapse/actions/;
+ADDITIONAL_FILES=/res/synapse/scripts/;
+
+if [ ! -f $CONFIG_JSON ]; then
+  mount -t rootfs -o rw,remount rootfs;
+  chmod -R 755 $ACTION_SCRIPTS $ADDITIONAL_FILES;
+  source /res/synapse/config.json.generate > $CONFIG_JSON;
+  mount -t rootfs -o ro,remount rootfs;
+fi;
+
+case "${1}" in
+  config)
+    cat $CONFIG_JSON ;;
+  configpath)
+    echo $CONFIG_JSON ;;
+  actionpath)
+    echo $ACTION_SCRIPTS ;;
+  reset)
+    mount -t rootfs -o rw,remount rootfs;
+    rm -f $CONFIG_JSON;
+    mount -t rootfs -o ro,remount rootfs;
+  ;;
+esac;
+

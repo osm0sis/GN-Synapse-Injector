@@ -1,0 +1,49 @@
+cat << CTAG
+{
+  name:Governor,
+  elements:[
+    { SPane:{
+        title:"CPU Governor",
+        description:"The CPU governor determines how the CPU responds to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available."
+    }},
+    { SOptionList:{
+        default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`,
+        action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+        values:[
+`
+            for GOVERNOR in \`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors\`; do
+                echo "\"$GOVERNOR\",";
+            done;
+`
+        ],
+        notify:[
+            { on:APPLY,
+              do:[ REFRESH, CANCEL ],
+              to:"/sys/devices/system/cpu/cpufreq"
+            },
+            { on:REFRESH,
+              do:REFRESH,
+              to:"/sys/devices/system/cpu/cpufreq"
+            }
+        ]
+    }},
+    { SPane:{
+        title:"CPU Governor Tunables",
+        description:"Auto-generated controls for the current governor."
+    }},
+    { STreeDescriptor:{
+        path:"/sys/devices/system/cpu/cpufreq",
+        generic:{ directory:
+            { STreeDescriptor:{
+                generic:{ 
+                    directory:{ },
+                    element:{ SGeneric:{ title:"@NAME" }}
+                },
+                exclude:[ "boostpulse" ]
+            }}
+        },
+        exclude:[ "kset" ]
+    }}
+  ]
+}
+CTAG

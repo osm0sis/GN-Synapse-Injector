@@ -1,0 +1,109 @@
+cat << CTAG
+{
+  name:Backup & Restore,
+  elements:[
+    { STitleBar:{
+        title:"Kernel"
+    }},
+    { SOptionList:{
+        title:"Selected Image",
+        description:"Choose the image you want and Apply your choice in Synapse before using the action buttons below.",
+        action:"restorebackup pickboot",
+        default:"None",
+        values:[ "None",
+`
+            for IMG in \`/res/synapse/actions/restorebackup listboot\`; do
+                echo "\"$IMG\",";
+            done;
+`
+        ]
+    }},
+    { STitleBar:{
+        title:"Kernel Actions",
+    }},
+    { SButton:{
+        label:"Restore Selected Kernel",
+        action:"restorebackup flashboot /dev/block/platform/omap/omap_hsmmc.0/by-name/boot"
+    }},
+    { SButton:{
+        label:"Delete Selected Kernel",
+        action:"restorebackup delboot",
+        notify:[
+            { on:APPLY,
+              do:[ RESET, REFRESH ],
+              to:"restorebackup pickboot"
+            }
+        ]
+    }},
+    { SButton:{
+        label:"Backup Current Kernel",
+        action:"restorebackup keepboot /dev/block/platform/omap/omap_hsmmc.0/by-name/boot",
+        notify:[
+            { on:APPLY,
+              do:[ REFRESH ],
+              to:"restorebackup pickboot"
+            }
+        ]
+    }},
+    { STitleBar:{
+        title:"Configuration Profiles"
+    }},
+    { SOptionList:{
+        title:"Selected Profile",
+        description:"Choose the settings backup you want and Apply your choice in Synapse before using the action buttons below.",
+        action:"restorebackup pickconfig",
+        default:"None",
+        values:[ "None",
+`
+            for BAK in \`/res/synapse/actions/restorebackup listconfig\`; do
+                echo "\"$BAK\",";
+            done;
+`
+        ]
+    }},
+    { STitleBar:{
+        title:"Settings Actions",
+    }},
+    { SButton:{
+        label:"Restore Selected Profile",
+        action:"restorebackup applyconfig"
+    }},
+    { SButton:{
+        label:"Delete Selected Profile",
+        action:"restorebackup delconfig",
+        notify:[
+            { on:APPLY,
+              do:[ RESET, REFRESH ],
+              to:"restorebackup pickconfig"
+            }
+        ]
+    }},
+    { SButton:{
+        label:"Backup Current Profile",
+        action:"restorebackup keepconfig",
+        notify:[
+            { on:APPLY,
+              do:[ REFRESH ],
+              to:"restorebackup pickconfig"
+            }
+        ]
+    }},
+    { SPane:{
+        title:"General Actions",
+        description:"To update/refresh lists, select Restart Synapse below."
+    }},
+    { SButton:{
+        label:"Restart Synapse",
+        action:"restorebackup restart"
+    }},
+    { SButton:{
+        label:"Reset Synapse",
+        action:"restorebackup reset"
+    }},
+    { SButton:{
+        label:"Toggle Dev Tools",
+        action:"restorebackup switch"
+    }}
+  ]
+}
+CTAG

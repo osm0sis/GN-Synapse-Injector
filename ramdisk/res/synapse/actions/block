@@ -1,0 +1,12 @@
+if [ -f /sys/block/mmcblk0/queue/$1 ]; then
+
+  if [[ ! -z $2 ]]; then
+    for i in /sys/block/*/queue; do
+      echo $2 > $i/$1;
+    done;
+  fi;
+
+  echo `cat /sys/block/mmcblk0/queue/$1`;
+
+fi;
+

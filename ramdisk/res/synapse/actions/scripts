@@ -1,0 +1,11 @@
+if [[ ! -z $3 ]]; then
+  mount -o rw,remount /system;
+  case $3 in
+    1) cp -pf /res/synapse/scripts/*$1 $2/;;
+    0) rm -f $2/*$1;;
+  esac;
+  mount -o ro,remount /system;
+fi;
+
+test ! -e $2/*$1;
+echo $?;

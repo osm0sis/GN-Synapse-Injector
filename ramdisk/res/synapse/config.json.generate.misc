@@ -1,0 +1,213 @@
+polar_to_bool() {
+    [ `cat $1` == "Y" ] && echo "1";
+    [ `cat $1` == "N" ] && echo "0";
+}
+
+cat << CTAG
+{
+  name:Misc,
+  elements:[
+    { STitleBar:{
+        title:"Network"
+    }},
+    { SOptionList:{
+        title:"TCP Congestion Control Algorithm",
+        description:"Set the algorithm of internet congestion avoidance, to possibly improve speeds and load times.",
+        action:"generic /proc/sys/net/ipv4/tcp_congestion_control",
+        values:[
+`
+            for TCP in $(cat /proc/sys/net/ipv4/tcp_available_congestion_control); do
+                echo "\"$TCP\",";
+            done;
+`
+        ]
+    }},
+`
+if [ -f "/sys/module/bcmdhd/parameters/wifi_pm" ]; then
+    echo '{ SCheckBox:{
+              label:"Wi-Fi Performance Mode",
+              description:"Maintain Wi-Fi speed when screen is off.",
+              default:'$(cat /sys/module/bcmdhd/parameters/wifi_pm)',
+              action:"generic /sys/module/bcmdhd/parameters/wifi_pm"
+          }},
+    ';
+fi;
+`
+    { STitleBar:{
+        title:"Sound"
+    }},
+    { SSeekBar:{
+        title:"Vibration Control", max:127,
+        description:"Change the strength of vibration.",
+        default:`cat /sys/vibrator/pwmvalue`,
+        action:"special /sys/vibrator/pwmvalue"
+    }},
+    { SSeekBar:{
+        title:"Headphone Volume Boost", max:3,
+        description:"Raise the volume of the headphone jack. Some kernels only allow 0-1.",
+        default:`cat /sys/devices/virtual/misc/soundcontrol/volume_boost`,
+        action:"generic /sys/devices/virtual/misc/soundcontrol/volume_boost"
+    }},
+`
+if [ -f "/sys/devices/virtual/misc/soundcontrol/highperf_enabled" ]; then
+    echo '{ SCheckBox:{
+              label:"High Performance Sound",
+              description:"Increase the device internal audio sampling rate.",
+              default:'$(cat /sys/devices/virtual/misc/soundcontrol/highperf_enabled)',
+              action:"generic /sys/devices/virtual/misc/soundcontrol/highperf_enabled"
+          }},
+    ';
+fi;
+`
+    { STitleBar:{
+        title:"Charging"
+    }},
+`
+if [ -f "/sys/class/misc/batterylifeextender/charging_limit" ]; then
+    echo '{ SSeekBar:{
+              title:"Battery Life eXtender", max:100,
+              description:"BLX limits charging of the battery to less than its capacity to try and increase the physical lifespan of the battery.",
+              default:'$(cat /sys/class/misc/batterylifeextender/charging_limit)',
+              action:"generic /sys/class/misc/batterylifeextender/charging_limit"
+          }},
+    ';
+fi;
+`
+    { SSeekBar:{
+        title:"Force Fast Charge",
+        description:"Increase the charging speed over USB, but may disable USB Mass Storage on some kernels. Some kernels allow setting to 1 for working data and 2 to charge only.",
+        default:`cat /sys/kernel/fast_charge/force_fast_charge`,
+        action:"generic /sys/kernel/fast_charge/force_fast_charge",
+        values:{ 0:"0: Disabled", 1:"1", 2:"2" }
+    }},
+    { STitleBar:{
+        title:"Other"
+    }},
+`
+if [ -d "/system/addon.d" ]; then
+    echo '{ SCheckBox:{
+              label:"Custom Kernel Persistence",
+              description:"Install an addon.d script to retain your custom kernel through a ROM upgrade/dirty flash.",
+              default:0,
+              action:"scripts customkernel.sh /system/addon.d"
+          }},
+    ';
+fi;
+if [ -e "/dev/frandom" ]; then
+    echo '{ SCheckBox:{
+              label:"Fast Random",
+              description:"Use the frandom alternative random number generator instead of the default.",
+              default:0,
+              action:"frandom"
+          }},
+    ';
+fi;
+`
+    { SCheckBox:{
+        label:"Fsync",
+        description:"Disabling fsync will increase I/O speed but decrease data integrity in the case of an app crash, freeze or reboot.",
+`
+if [ -f "/sys/class/misc/fsynccontrol/fsync_enabled" ]; then
+    echo 'default:'$(cat /sys/class/misc/fsynccontrol/fsync_enabled)',
+          action:"generic /sys/class/misc/fsynccontrol/fsync_enabled"
+    ';
+else
+    echo 'default:'$(polar_to_bool /sys/module/sync/parameters/fsync_enabled)',
+          action:"special /sys/module/sync/parameters/fsync_enabled"
+    ';
+fi;
+`
+    }},
+    { SCheckBox:{
+        label:"SELinux Policy",
+        description:"Enable to set to Enforcing, disable to set to Permissive. Tethering may be broken on some ROMs when set to Enforcing.",
+        default:`echo $(/res/synapse/actions/special /sepolicy)`,
+        action:"special /sepolicy"
+    }},
+`
+if [ -f "/sbin/suspent_trim" ]; then
+    echo '{ SCheckBox:{
+              label:"Suspend Trim",
+              description:"Perform filesystem trimming periodically when screen is off for over 60 seconds, to maintain I/O speeds over time.",
+              default:'$(cat /data/trimhelper | sed -n '3p')',
+              action:"special /data/trimhelper"
+          }},
+    ';
+fi;
+if [ -f "/sys/kernel/logger_mode/logger_mode" ]; then
+    echo '{ SCheckBox:{
+              label:"System Logging",
+              description:"When disabled this will stop dmesg/kmsg and logcat creation; crash reports will be useless, but there is a minor possible gain to battery life.",
+              default:'$(cat /sys/kernel/logger_mode/logger_mode | tr -cd [0-9])',
+              action:"special /sys/kernel/logger_mode/logger_mode"
+          }},
+    ';
+fi;
+`
+    { STitleBar:{
+        title:"Kernel Samepage Merging"
+    }},
+`
+if [ -f "/sys/kernel/mm/uksm/run" ]; then
+    echo '{ SCheckBox:{
+              label:"Ultimate Kernel Samepage Merging",
+              description:"UKSM combines duplicate memory pages of different processes to possibly improve usage/performance of system memory.",
+              default:'$(cat /sys/kernel/mm/uksm/run)',
+              action:"generic /sys/kernel/mm/uksm/run"
+          }},
+          { SOptionList:{
+              title:"CPU Governor",
+              action:"bracket-option /sys/kernel/mm/uksm/cpu_governor",
+              values:[
+    ';
+    for UKSMGOV in $(cat /sys/kernel/mm/uksm/cpu_governor | sed -e 's/\]//;s/\[//'); do
+        echo "\"$UKSMGOV\",";
+    done;
+    echo '    ]
+          }},
+          { SSeekBar:{
+              title:"Maximum CPU Percentage",
+              min:1, max:100, unit:"%",
+              default:'$(cat /sys/kernel/mm/uksm/max_cpu_percentage)',
+              action:"generic /sys/kernel/mm/uksm/max_cpu_percentage"
+          }},
+          { SSeekBar:{
+              title:"Sleep",
+              min:50, max:3000, step:50, unit:" ms",
+              default:'$(cat /sys/kernel/mm/uksm/sleep_millisecs)',
+              action:"generic /sys/kernel/mm/uksm/sleep_millisecs"
+          }}
+    ';
+else
+    echo '{ SCheckBox:{
+              label:"Kernel Samepage Merging",
+              description:"KSM combines duplicate memory pages of different processes to possibly improve usage/performance of system memory.",
+              default:'$(cat /sys/kernel/mm/ksm/run)',
+              action:"generic /sys/kernel/mm/ksm/run"
+          }},
+          { SSeekBar:{
+              title:"Pages To Scan",
+              min:4, max:1024, step:4,
+              default:'$(cat /sys/kernel/mm/ksm/pages_to_scan)',
+              action:"generic /sys/kernel/mm/ksm/pages_to_scan"
+          }},
+          { SSeekBar:{
+              title:"Sleep",
+              min:20, max:3000, step:10, unit:" ms",
+              default:'$(cat /sys/kernel/mm/ksm/sleep_millisecs)',
+              action:"generic /sys/kernel/mm/ksm/sleep_millisecs"
+          }},
+    ';
+    if [ -f "/sys/kernel/mm/ksm/deferred_timer" ]; then
+        echo '{ SCheckBox:{
+                  label:"Deferred Timer",
+                  default:'$(cat /sys/kernel/mm/ksm/deferred_timer)',
+                  action:"generic /sys/kernel/mm/ksm/deferred_timer"
+              }}
+        ';
+    fi;
+fi;
+`
+  ]
+}
+CTAG

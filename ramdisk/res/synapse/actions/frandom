@@ -1,0 +1,20 @@
+if [[ ! -z $1 ]]; then
+  case $1 in
+    1)
+      chmod 666 /dev/frandom /dev/erandom;
+      mv /dev/random /dev/random.orig;
+      mv /dev/urandom /dev/urandom.orig;
+      ln -s /dev/frandom /dev/random;
+      ln -s /dev/erandom /dev/urandom;
+    ;;
+
+    0)
+      mv /dev/random.orig /dev/random 2> /dev/null;
+      mv /dev/urandom.orig /dev/urandom 2> /dev/null;
+    ;;
+  esac;
+fi;
+
+test ! /dev/random -ef /dev/frandom;
+echo $?;
+

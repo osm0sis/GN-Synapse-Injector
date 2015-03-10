@@ -1,0 +1,44 @@
+cat << CTAG
+{
+  name:Scheduler,
+  elements:[
+    { SPane:{
+        title:"I/O Scheduler",
+        description:"Set the active I/O elevator algorithm. The scheduler decides how to group, prioritize and handle I/O requests."
+    }},
+    { SOptionList:{
+        default:`echo $(/res/synapse/actions/bracket-option /sys/block/mmcblk0/queue/scheduler)`,
+        action:"bracket-option /sys/block/mmcblk0/queue/scheduler",
+        values:[
+`
+            for IOSCHED in \`cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'\`; do
+                echo "\"$IOSCHED\",";
+            done;
+`
+        ],
+        notify:[
+            { on:APPLY,
+              do:[ RESET, REFRESH, APPLY ],
+              to:"/sys/block/mmcblk0/queue/iosched"
+            },
+            { on:REFRESH,
+              do:REFRESH,
+              to:"/sys/block/mmcblk0/queue/iosched"
+            }
+        ]
+    }},
+    { SPane:{
+         title:"I/O Scheduler Tunables",
+         description:"Auto-generated controls for the current scheduler."
+    }},
+    { STreeDescriptor:{
+        path:"/sys/block/mmcblk0/queue/iosched",
+        generic:{
+            directory:{ },
+            element:{ SGeneric:{ title:"@NAME" }}
+        },
+        exclude:[ "weights" ]
+    }}
+  ]
+}
+CTAG

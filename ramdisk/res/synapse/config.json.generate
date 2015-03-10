@@ -1,0 +1,17 @@
+cat << CTAG
+{
+  sections:[
+    `. /res/synapse/config.json.generate.cpu`,
+    `. /res/synapse/config.json.generate.governor`,
+    `. /res/synapse/config.json.generate.gpu`,
+    `. /res/synapse/config.json.generate.panel`,
+    `. /res/synapse/config.json.generate.voltage`,
+    `. /res/synapse/config.json.generate.io`,
+    `. /res/synapse/config.json.generate.scheduler`,
+    `. /res/synapse/config.json.generate.misc`,
+    `. /res/synapse/config.json.generate.vm-zram`,
+    `. /res/synapse/config.json.generate.advanced`,
+    `. /res/synapse/config.json.generate.backup-restore`
+  ]
+}
+CTAG

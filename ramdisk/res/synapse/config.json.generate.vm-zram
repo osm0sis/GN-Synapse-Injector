@@ -1,0 +1,210 @@
+cat << CTAG
+{
+`
+if [ -e "/dev/block/zram0" ]; then
+    echo 'name:VM & Z-RAM,';
+else
+    echo 'name:VM,';
+fi;
+`
+  elements:[
+    { SPane:{
+        title:"Virtual Memory",
+        description:"Tune the operation of the VM subsystem of the Linux kernel and the writeout of dirty data to disk. Swappiness also affects Z-RAM operation on kernels which support swaps."
+    }},
+    { STitleBar:{
+        title:"Dirty Writeout"
+    }},
+    { SSeekBar:{
+        title:"Dirty Background Bytes",
+        max:10485760, step:1024, unit:" B",
+        default:`cat /proc/sys/vm/dirty_background_bytes`,
+        action:"generic /proc/sys/vm/dirty_background_bytes"
+    }},
+    { SSeekBar:{
+        title:"Dirty Background Ratio",
+        max:100, unit:"%",
+        default:`cat /proc/sys/vm/dirty_background_ratio`,
+        action:"generic /proc/sys/vm/dirty_background_ratio"
+    }},
+    { SSeekBar:{
+        title:"Dirty Bytes",
+        max:10485760, step:1024, unit:" B",
+        default:`cat /proc/sys/vm/dirty_bytes`,
+        action:"generic /proc/sys/vm/dirty_bytes"
+    }},
+    { SSeekBar:{
+        title:"Dirty Ratio",
+        max:100, unit:"%",
+        default:`cat /proc/sys/vm/dirty_ratio`,
+        action:"generic /proc/sys/vm/dirty_ratio"
+    }},
+    { SSeekBar:{
+        title:"Dirty Expire Centisecs",
+        max:5000, step:50,
+        default:`cat /proc/sys/vm/dirty_expire_centisecs`,
+        action:"generic /proc/sys/vm/dirty_expire_centisecs"
+    }},
+    { SSeekBar:{
+        title:"Dirty Writeback Centisecs",
+        max:5000, step:50,
+        default:`cat /proc/sys/vm/dirty_writeback_centisecs`,
+        action:"generic /proc/sys/vm/dirty_writeback_centisecs"
+    }},
+    { SCheckBox:{
+        label:"Highmem Is Dirtyable",
+        default:`cat /proc/sys/vm/highmem_is_dirtyable`,
+        action:"generic /proc/sys/vm/highmem_is_dirtyable"
+    }},
+    { SCheckBox:{
+        label:"Laptop Mode",
+        default:`echo $(/res/synapse/actions/special /proc/sys/vm/laptop_mode)`,
+        action:"special /proc/sys/vm/laptop_mode"
+    }},
+    { STitleBar:{
+        title:"Free Memory"
+    }},
+    { SSeekBar:{
+        title:"Extra Free KBytes",
+        max:20480, unit:" kB",
+        default:`cat /proc/sys/vm/extra_free_kbytes`,
+        action:"generic /proc/sys/vm/extra_free_kbytes"
+    }},
+    { SSeekBar:{
+        title:"Min Free KBytes",
+        min:1024, max:32768, unit:" kB",
+        default:`cat /proc/sys/vm/min_free_kbytes`,
+        action:"generic /proc/sys/vm/min_free_kbytes"
+    }},
+    { SSeekBar:{
+        title:"Min Free Order Shift", max:10,
+        default:`cat /proc/sys/vm/min_free_order_shift`,
+        action:"generic /proc/sys/vm/min_free_order_shift"
+    }},
+    { SSeekBar:{
+        title:"Overcommit Memory", max:2,
+        default:`cat /proc/sys/vm/overcommit_memory`,
+        action:"generic /proc/sys/vm/overcommit_memory"
+    }},
+    { SSeekBar:{
+        title:"Overcommit Ratio",
+        max:100, unit:"%",
+        default:`cat /proc/sys/vm/overcommit_ratio`,
+        action:"generic /proc/sys/vm/overcommit_ratio"
+    }},
+    { SSeekBar:{
+        title:"Panic On OOM", max:2,
+        default:`cat /proc/sys/vm/panic_on_oom`,
+        action:"generic /proc/sys/vm/panic_on_oom"
+    }},
+    { SSeekBar:{
+        title:"VFS Cache Pressure", max:300,
+        default:`cat /proc/sys/vm/vfs_cache_pressure`,
+        action:"generic /proc/sys/vm/vfs_cache_pressure"
+    }},
+    { SCheckBox:{
+        label:"OOM Dump Tasks",
+        default:`cat /proc/sys/vm/oom_dump_tasks`,
+        action:"generic /proc/sys/vm/oom_dump_tasks"
+    }},
+    { SCheckBox:{
+        label:"OOM Kill Allocating Task",
+        default:`cat /proc/sys/vm/oom_kill_allocating_task`,
+        action:"generic /proc/sys/vm/oom_kill_allocating_task"
+    }},
+    { STitleBar:{
+        title:"Memory Zones"
+    }},
+    { SSeekBar:{
+        title:"Ext-Frag Threshold",
+        min:-1, max:1000,
+        default:`cat /proc/sys/vm/extfrag_threshold`,
+        action:"generic /proc/sys/vm/extfrag_threshold"
+    }},
+    { SSeekBar:{
+        title:"Low-Mem Reserve Ratio (x2 Array)", max:100,
+        default:`echo $(/res/synapse/actions/special /proc/sys/vm/lowmem_reserve_ratio)`,
+        action:"special /proc/sys/vm/lowmem_reserve_ratio"
+    }},
+    { SSeekBar:{
+        title:"Per-CPU Pagelist Fraction (1/x)", max:200,
+        default:`cat /proc/sys/vm/percpu_pagelist_fraction`,
+        action:"generic /proc/sys/vm/percpu_pagelist_fraction"
+    }},
+    { SSeekBar:{
+        title:"Stat Interval",
+        min:1, max:100, unit:" s",
+        default:`cat /proc/sys/vm/stat_interval`,
+        action:"generic /proc/sys/vm/stat_interval"
+    }},
+    { SCheckBox:{
+        label:"Scan Unevictable Pages",
+        default:`cat /proc/sys/vm/scan_unevictable_pages`,
+        action:"generic /proc/sys/vm/scan_unevictable_pages"
+    }},
+    { STitleBar:{
+        title:"Swap"
+    }},
+    { SSeekBar:{
+        title:"Page-Cluster", max:20,
+        default:`cat /proc/sys/vm/page-cluster`,
+        action:"generic /proc/sys/vm/page-cluster"
+    }},
+    { SSeekBar:{
+        title:"Swappiness",
+        max:100, step:5, unit:"%",
+        default:`cat /proc/sys/vm/swappiness`,
+        action:"generic /proc/sys/vm/swappiness"
+    }},
+`
+if [ -e "/dev/block/zram0" ]; then
+    echo '{ SPane:{
+              title:"Z-RAM",
+              description:"Attempts to increase performance by compressing RAM to create a virtual swap device. Potentially frees up RAM for multitasking at the cost of CPU to de/compress pages."
+          }},
+          { SSeekBar:{
+              title:"Disk Size",
+              min:0, max:384, step:8, unit:" MB",
+              default:0,
+              action:"zram zram0"
+          }},
+    ';
+    if [ -f "/sys/block/zram0/comp_algorithm" ]; then
+        echo '{ SOptionList:{
+                  title:"Compression Algorithm",
+                  action:"bracket-option /sys/block/zram0/comp_algorithm",
+                  values:[
+        ';
+        for ZRCOMP in $(cat /sys/block/zram0/comp_algorithm | sed -e 's/\]//;s/\[//'); do
+            echo "\"$ZRCOMP\",";
+        done;
+        echo '    ],
+                  notify:[
+                      { on:SET,
+                        do:[ RESET, APPLY, REFRESH ],
+                        to:[ "zram zram0" ]
+                      }
+                  ]
+              }},
+        ';
+    fi;
+    if [ -f "/sys/block/zram0/max_comp_streams" ]; then
+        echo '{ SSeekBar:{
+                  title:"Max Compression Streams",
+                  min:1, max:5,
+                  default:'$(cat /sys/block/zram0/max_comp_streams)',
+                  action:"generic /sys/block/zram0/max_comp_streams",
+                  notify:[
+                      { on:SET,
+                        do:[ RESET, APPLY, REFRESH ],
+                        to:"zram zram0"
+                      }
+                  ]
+              }}
+        ';
+    fi;
+fi;
+`
+  ]
+}
+CTAG

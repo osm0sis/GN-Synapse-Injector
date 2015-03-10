@@ -1,0 +1,195 @@
+cat << CTAG
+{
+  name:Advanced,
+  elements:[
+`
+if [ -f "/sys/module/lowmemorykiller/parameters/minfree" ]; then
+    echo '{ SPane:{
+              title:"Low Memory Killer",
+              description:"LMK Minfree controls how much memory each app type can hold, and is responsible for memory management in multitasking; all values are multiplied by 256 pages."
+          }},
+    ';
+    for LMK in 1 2 3 4 5 6; do
+        echo '{ SSeekBar:{ ';
+        case $LMK in
+            1) echo 'title:"Foreground App"' ;;
+            2) echo 'title:"Visible App"' ;;
+            3) echo 'title:"Secondary Server"' ;;
+            4) echo 'title:"Hidden App"' ;;
+            5) echo 'title:"Content Provider"' ;;
+            6) echo 'title:"Empty App"' ;;
+        esac;
+        echo ', min:2, max:320,
+                action:"minfree '${LMK}'" }},
+        ';
+    done;
+fi;
+`
+    { STitleBar:{
+        title:"Kernel Entropy"
+    }},
+    { SLiveLabel:{
+        title:"Entropy Available",
+        refresh:1000,
+        action:"live entropy"
+    }},
+    { SSeekBar:{
+        title:"Read Wakeup Threshold",
+        min:64, max:2048, step:64,
+        default:`cat /proc/sys/kernel/random/read_wakeup_threshold`,
+        action:"generic /proc/sys/kernel/random/read_wakeup_threshold"
+    }},
+    { SSeekBar:{
+        title:"Write Wakeup Threshold",
+        min:64, max:2048, step:64,
+        default:`cat /proc/sys/kernel/random/write_wakeup_threshold`,
+        action:"generic /proc/sys/kernel/random/write_wakeup_threshold"
+    }},
+    { STitleBar:{
+        title:"Kernel Sched"
+    }},
+`
+if [ -f "/proc/sys/kernel/sched_latency_ns" ]; then
+    echo '{ SSeekBar:{
+              title:"Latency",
+              min:1000000, max:20000000, step:100000, unit:" ns",
+              default:'$(cat /proc/sys/kernel/sched_latency_ns)',
+              action:"generic /proc/sys/kernel/sched_latency_ns"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_min_granularity_ns" ]; then
+    echo '{ SSeekBar:{
+              title:"Min Granularity",
+              min:1000000, max:20000000, step:100000, unit:" ns",
+              default:'$(cat /proc/sys/kernel/sched_min_granularity_ns)',
+              action:"generic /proc/sys/kernel/sched_min_granularity_ns"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_nr_migrate" ]; then
+    echo '{ SSeekBar:{
+              title:"NR Migrate",
+              min:8, max:96, step:8,
+              default:'$(cat /proc/sys/kernel/sched_nr_migrate)',
+              action:"generic /proc/sys/kernel/sched_nr_migrate"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_rt_period_us" ]; then
+    echo '{ SSeekBar:{
+              title:"RT Period",
+              min:10000, max:2000000, step:10000, unit:" us",
+              default:'$(cat /proc/sys/kernel/sched_rt_period_us)',
+              action:"generic /proc/sys/kernel/sched_rt_period_us"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_rt_runtime_us" ]; then
+    echo '{ SSeekBar:{
+              title:"RT Runtime",
+              min:10000, max:2000000, step:2500, unit:" us",
+              default:'$(cat /proc/sys/kernel/sched_rt_runtime_us)',
+              action:"generic /proc/sys/kernel/sched_rt_runtime_us"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_shares_window" ]; then
+    echo '{ SSeekBar:{
+              title:"Shares Window",
+              min:5000000, max:20000000, step:1000000, unit:" ns",
+              default:'$(cat /proc/sys/kernel/sched_shares_window)',
+              action:"generic /proc/sys/kernel/sched_shares_window"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_time_avg" ]; then
+    echo '{ SSeekBar:{
+              title:"Time Average",
+              min:100, max:2000, step:100, unit:" ns",
+              default:'$(cat /proc/sys/kernel/sched_time_avg)',
+              action:"generic /proc/sys/kernel/sched_time_avg"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_wakeup_granularity_ns" ]; then
+    echo '{ SSeekBar:{
+              title:"Wakeup Granularity",
+              min:1000000, max:20000000, step:100000, unit:" ns",
+              default:'$(cat /proc/sys/kernel/sched_wakeup_granularity_ns)',
+              action:"generic /proc/sys/kernel/sched_wakeup_granularity_ns"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_autogroup_enabled" ]; then
+    echo '{ SCheckBox:{
+              label:"Autogroup",
+              default:'$(cat /proc/sys/kernel/sched_autogroup_enabled)',
+              action:"generic /proc/sys/kernel/sched_autogroup_enabled"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_child_runs_first" ]; then
+    echo '{ SCheckBox:{
+              label:"Child Runs First",
+              default:'$(cat /proc/sys/kernel/sched_child_runs_first)',
+              action:"generic /proc/sys/kernel/sched_child_runs_first"
+          }},
+    ';
+fi;
+if [ -f "/sys/kernel/sched/gentle_fair_sleepers" ]; then
+    echo '{ SCheckBox:{
+              label:"Gentle Fair Sleepers",
+              default:'$(cat /sys/kernel/sched/gentle_fair_sleepers)',
+              action:"generic /sys/kernel/sched/gentle_fair_sleepers"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/kernel/sched_tunable_scaling" ]; then
+    echo '{ SCheckBox:{
+              label:"Tunable Scaling",
+              default:'$(cat /proc/sys/kernel/sched_tunable_scaling)',
+              action:"generic /proc/sys/kernel/sched_tunable_scaling"
+          }},
+    ';
+fi;
+`
+    { STitleBar:{
+        title:"Other"
+    }},
+`
+if [ -f "/proc/sys/kernel/randomize_va_space" ]; then
+    echo '{ SSeekBar:{
+              title:"Randomize VA Space", max:2,
+              default:'$(cat /proc/sys/kernel/randomize_va_space)',
+              action:"generic /proc/sys/kernel/randomize_va_space"
+          }},
+    ';
+fi;
+if [ -f "/proc/sys/fs/lease-break-time" ]; then
+    echo '{ SSeekBar:{
+              title:"FileSystem Lease Break Time",
+              min:1, max:100, unit:" s",
+              default:'$(cat /proc/sys/fs/lease-break-time)',
+              action:"generic /proc/sys/fs/lease-break-time"
+          }},
+    ';
+fi;
+if [ -f "/sys/kernel/debug/sched_features" ]; then
+    echo '{ STitleBar:{
+              title:"Kernel Sched Features"
+          }},
+    ';
+    for i in $(cat /sys/kernel/debug/sched_features); do
+        echo '{ SCheckBox:{
+                  label:"'$(echo ${i//_/ } | sed 's/^NO //g')'",
+                  default:'$(/res/synapse/actions/sched $i)',
+                  action:"sched '$i'"
+              }},
+        ';
+    done;
+fi;
+`
+  ]
+}
+CTAG

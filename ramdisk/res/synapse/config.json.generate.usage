@@ -1,0 +1,29 @@
+cat << CTAG
+{
+  name:Usage,
+  elements:[
+    { STitleBar:{
+        title:"Uptime"
+    }},
+    { SLiveLabel:{
+        refresh:1000,
+        action:"live uptime"
+    }},
+    { STitleBar:{
+        title:"Unused States"
+    }},
+    { SLiveLabel:{
+        action:"live unused"
+    }},
+    { STitleBar:{
+        title:"Time In States"
+    }},
+    { SLiveLabel:{
+        action:"live states 0 9"
+    }},
+    { SLiveLabel:{
+        action:"live states 10 19"
+    }}
+  ]
+}
+CTAG
