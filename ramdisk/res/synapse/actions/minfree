@@ -1,6 +1,7 @@
 # fix sysfs permissions for minfree on Lollipop
-chmod 755 /sys/module/lowmemorykiller/parameters/adj
-chmod 755 /sys/module/lowmemorykiller/parameters/minfree
+chmod 755 /sys/module/lowmemorykiller/parameters/adj;
+chmod 755 /sys/module/lowmemorykiller/parameters/minfree;
+chmod 755 /sys/module/lowmemorykiller/parameters/lmk_fast_run;
 
 P=/sys/module/lowmemorykiller/parameters/minfree;
 

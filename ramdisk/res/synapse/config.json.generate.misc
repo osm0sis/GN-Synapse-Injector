@@ -125,7 +125,7 @@ fi;
         action:"special /sepolicy"
     }},
 `
-if [ -f "/sbin/suspent_trim" ]; then
+if [ -f "/sbin/suspend_trim" ]; then
     echo '{ SCheckBox:{
               label:"Suspend Trim",
               description:"Perform filesystem trimming periodically when screen is off for over 60 seconds, to maintain I/O speeds over time.",
@@ -173,7 +173,7 @@ if [ -f "/sys/kernel/mm/uksm/run" ]; then
           }},
           { SSeekBar:{
               title:"Sleep",
-              min:50, max:3000, step:50, unit:" ms",
+              min:20, max:3000, step:1, unit:" ms",
               default:'$(cat /sys/kernel/mm/uksm/sleep_millisecs)',
               action:"generic /sys/kernel/mm/uksm/sleep_millisecs"
           }}

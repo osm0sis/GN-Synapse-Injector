@@ -24,6 +24,42 @@ if [ -f "/sys/module/lowmemorykiller/parameters/minfree" ]; then
         ';
     done;
 fi;
+if [ -f "/sys/module/lowmemorykiller/parameters/lmk_fast_run" ]; then
+    echo '{ SCheckBox:{
+              label:"LMK Fast Run",
+              default:'$(cat /sys/module/lowmemorykiller/parameters/lmk_fast_run)',
+              action:"generic /sys/module/lowmemorykiller/parameters/lmk_fast_run"
+          }},
+    ';
+fi;
+if [ -f "/sys/module/lowmemorykiller/parameters/donotkill_proc" ]; then
+    echo '{ SPane:{
+              title:"LMK Whitelist",
+              description:"Allows certain apps to be exempt from being killed until absolutely necessary to avoid out-of-memory (OOM)."
+          }},
+          { SCheckBox:{
+              label:"Do-Not-Kill System Processes List",
+              default:'$(cat /sys/module/lowmemorykiller/parameters/donotkill_sysproc)',
+              action:"generic /sys/module/lowmemorykiller/parameters/donotkill_sysproc"
+          }},
+          { SGeneric:{ title:"Exempt System Processes",
+              default:'$(cat /sys/module/lowmemorykiller/parameters/donotkill_sysproc_names)',
+              action:"generic /sys/module/lowmemorykiller/parameters/donotkill_sysproc_names"
+          }},
+          { SCheckBox:{
+              label:"Do-Not-Kill User Processes List",
+              default:'$(cat /sys/module/lowmemorykiller/parameters/donotkill_proc)',
+              action:"generic /sys/module/lowmemorykiller/parameters/donotkill_proc"
+          }},
+          { SGeneric:{ title:"Exempt User Processes",
+              default:'$(cat /sys/module/lowmemorykiller/parameters/donotkill_proc_names)',
+              action:"generic /sys/module/lowmemorykiller/parameters/donotkill_proc_names"
+          }},
+          { SDescription:{
+              description:"To add processes to the lists, enter process or package names separated by a comma."
+          }},
+    ';
+fi;
 `
     { STitleBar:{
         title:"Kernel Entropy"
