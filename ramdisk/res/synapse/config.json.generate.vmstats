@@ -6,28 +6,28 @@ cat << CTAG
         title:"Virtual Memory Statistics"
     }},
     { SLiveLabel:{
-        action:"live vmstats 1 10"
+        action:"live proclist vmstat 1 10"
     }},
     { SLiveLabel:{
-        action:"live vmstats 11 20"
+        action:"live proclist vmstat 11 20"
     }},
     { SLiveLabel:{
-        action:"live vmstats 21 30"
+        action:"live proclist vmstat 21 30"
     }},
     { SLiveLabel:{
-        action:"live vmstats 31 40"
+        action:"live proclist vmstat 31 40"
     }},
     { SLiveLabel:{
-        action:"live vmstats 41 50"
+        action:"live proclist vmstat 41 50"
     }},
     { SLiveLabel:{
-        action:"live vmstats 51 59"
+        action:"live proclist vmstat 51 59"
     }},
     { SLiveLabel:{
-        action:"live vmstats 60 69"
+        action:"live proclist vmstat 60 69"
     }},
     { SLiveLabel:{
-        action:"live vmstats 70 79"
+        action:"live proclist vmstat 70 79"
     }}
   ]
 }

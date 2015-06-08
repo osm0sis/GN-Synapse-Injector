@@ -3,6 +3,18 @@ volt() { echo "$((`cat /sys/kernel/debug/voltage/vdd_$1/curr_vp_volt` / 1000)) m
 readlines() { awk -v startl=${2:-1} -v nlines=${1:-10} ' NR - (startl-1) > nlines { exit( 0 ); } NR >= startl '; }
 
 case $1 in
+  generic)
+    echo "$(cat $2)$3";
+  ;;
+
+  percent)
+    if [ `cat $3` -gt 0 ]; then
+      echo "$((100 * `cat $2` / `cat $3`))%";
+    else
+      echo "N/A";
+    fi;
+  ;;
+
   cpufreq)
     if [ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq ]; then
       CPUFREQONE=$(freq 0 scaling);
@@ -29,38 +41,36 @@ case $1 in
     echo "CPU: $CPU       Battery: $BATTERY";
   ;;
 
-  gpu)
-    GPUFREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/gpu_clock);
-    CVOLT=$(volt core);
-
-    echo "GPU: ${GPUFREQ//h/H}      $CVOLT";
-  ;;
-
   gpu-iva)
-    if [ -f "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency" ]; then
+    if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_clock" ]; then
+      GPUFREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/gpu_clock);
+    elif [ -f "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency" ]; then
       GPUFREQ=$(echo "$((`cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency` / 1000000)) MHz");
     else
       GPUFREQ=$(freq 0 gpu);
     fi;
     CVOLT=$(volt core);
-    IVAFREQ=$(freq 0 iva);
-    IVOLT=$(volt iva);
 
-    test ${#CVOLT} -gt 6 && spacer="  " || spacer="";
-
-    echo "GPU: $GPUFREQ      $CVOLT@n    IVA: $IVAFREQ   $spacer   $IVOLT  $dummy";
+    if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/iva_cur_freq" ]; then
+      IVAFREQ=$(freq 0 iva);
+      IVOLT=$(volt iva);
+      test ${#CVOLT} -gt 6 && spacer="  " || spacer="";
+      echo "GPU: $GPUFREQ      $CVOLT@n    IVA: $IVAFREQ   $spacer   $IVOLT  $dummy";
+    else
+      echo "GPU: ${GPUFREQ//h/H}      $CVOLT";
+    fi;
   ;;
 
-  entropy)
-    echo "`cat /proc/sys/kernel/random/entropy_avail`";
+  proclist)
+    echo "$(cat /proc/$2 | readlines r $3 $4 | awk 1 ORS='@n')";
   ;;
 
-  meminfo)
-    echo "`cat /proc/meminfo | readlines r $2 $3 | awk 1 ORS='@n'`";
+  swapused)
+    echo "$(free -b | grep Swap | awk '{ print $3 }')";
   ;;
 
-  vmstats)
-    echo "`cat /proc/vmstat | readlines r $2 $3 | awk 1 ORS='@n'`";
+  swapfree)
+    echo "$(free -b | grep Swap | awk '{ print $4 }')";
   ;;
 
   bootloader)

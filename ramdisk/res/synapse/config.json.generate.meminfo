@@ -6,16 +6,16 @@ cat << CTAG
         title:"Memory Information"
     }},
     { SLiveLabel:{
-        action:"live meminfo 1 10"
+        action:"live proclist meminfo 1 10"
     }},
     { SLiveLabel:{
-        action:"live meminfo 11 20"
+        action:"live proclist meminfo 11 20"
     }},
     { SLiveLabel:{
-        action:"live meminfo 21 30"
+        action:"live proclist meminfo 21 30"
     }},
     { SLiveLabel:{
-        action:"live meminfo 31 40"
+        action:"live proclist meminfo 31 40"
     }}
   ]
 }

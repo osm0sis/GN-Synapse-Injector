@@ -67,7 +67,7 @@ fi;
     { SLiveLabel:{
         title:"Entropy Available",
         refresh:1000,
-        action:"live entropy"
+        action:"live generic /proc/sys/kernel/random/entropy_avail"
     }},
     { SSeekBar:{
         title:"Read Wakeup Threshold",

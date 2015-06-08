@@ -2,7 +2,9 @@ if [[ ! -z $2 ]]; then
   zram_size=$2;
 
   persist=`cat /sys/block/$1/max_comp_streams 2>/dev/null`;
-  swapoff /dev/block/$1 > /dev/null 2>&1;
+  if [ `cat /sys/block/$1/disksize` -gt 0 ]; then
+    swapoff /dev/block/$1 > /dev/null 2>&1;
+  fi;
   echo 1 > /sys/block/$1/reset;
   [ "$persist" ] && echo $persist > /sys/block/$1/max_comp_streams;
 

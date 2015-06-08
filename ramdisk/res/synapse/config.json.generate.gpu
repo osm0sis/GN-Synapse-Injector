@@ -13,13 +13,7 @@ fi;
     }},
     { SLiveLabel:{
         refresh:1000,
-`
-if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/iva_cur_freq" ]; then
-    echo 'action:"live gpu-iva"';
-else
-    echo 'action:"live gpu"';
-fi;
-`
+        action:"live gpu-iva";
     }},
 `
 if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_oc" -o -f "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency_limit" ]; then

@@ -13,7 +13,11 @@ read() {
     VALUE=$((VALUE + 1));
     if [ "$VALUE" == $1 ]; then
       if [ "$P" == "/sys/class/misc/colorcontrol/multiplier" ]; then
-        echo ${COLOR//0000000/};
+        if [ "$COLOR" == 2004318071 ]; then
+          echo 200;
+        else
+          echo ${COLOR//0000000/};
+        fi;
       else
         echo $COLOR;
       fi;

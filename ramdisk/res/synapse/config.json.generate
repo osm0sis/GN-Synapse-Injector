@@ -5,7 +5,11 @@ cat << CTAG
     `. /res/synapse/config.json.generate.governor`,
     `. /res/synapse/config.json.generate.gpu`,
     `. /res/synapse/config.json.generate.panel`,
-    `. /res/synapse/config.json.generate.voltage`,
+`
+if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table" -o -d "/sys/devices/virtual/misc/customvoltage" ]; then
+    . /res/synapse/config.json.generate.voltage;
+fi;
+`,
     `. /res/synapse/config.json.generate.io`,
     `. /res/synapse/config.json.generate.scheduler`,
     `. /res/synapse/config.json.generate.misc`,

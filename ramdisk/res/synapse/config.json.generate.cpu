@@ -103,32 +103,35 @@ if [ -f "/sys/devices/system/cpu/sched_mc_power_savings" ]; then
           }},
     ';
 fi;
-`
-    { STitleBar:{
-        title:"Thermal Framework"
-    }},
-`
-if [ -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" ]; then
-    echo '{ SCheckBox:{
-              label:"Thermal Throttling",
-              description:"Force lower CPU frequencies when temperature reaches the throttling limit, to avoid overheating.",
-              default:'$(polar_to_bool /sys/module/omap_temp_sensor/parameters/throttle_enabled)',
-              action:"special /sys/module/omap_temp_sensor/parameters/throttle_enabled"
+if [ -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" -o -f "/sys/class/misc/tempcontrol/templimit" ]; then
+    echo '{ STitleBar:{
+              title:"Thermal Framework"
           }},
     ';
+    if [ -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" ]; then
+        echo '{ SCheckBox:{
+                  label:"Thermal Throttling",
+                  description:"Force lower CPU frequencies when temperature reaches the throttling limit, to avoid overheating.",
+                  default:'$(polar_to_bool /sys/module/omap_temp_sensor/parameters/throttle_enabled)',
+                  action:"special /sys/module/omap_temp_sensor/parameters/throttle_enabled"
+              }},
+        ';
+    fi;
+    if [ -f "/sys/class/misc/tempcontrol/templimit" ]; then
+        echo '{ SSeekBar:{
+                  title: "Temperature Limit",
+        ';
+    fi;
+    if [ ! -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" ]; then
+        echo 'description:"Force lower CPU frequencies when temperature reaches the throttling limit, to avoid overheating.",';
+    fi;
+    if [ -f "/sys/class/misc/tempcontrol/templimit" ]; then
+        echo '    min:60000, max:90000, step:1000, weight:0.001, unit:"°C",
+                  action:"generic /sys/class/misc/tempcontrol/templimit"
+              }},
+        ';
+    fi;
 fi;
-`
-    { SSeekBar:{
-        title: "Temperature Limit",
-`
-if [ ! -f "/sys/module/omap_temp_sensor/parameters/throttle_enabled" ]; then
-    echo 'description:"Force lower CPU frequencies when temperature reaches the throttling limit, to avoid overheating.",';
-fi;
-`
-        min:60000, max:90000, step:1000, weight:0.001, unit:"°C",
-        action:"generic /sys/class/misc/tempcontrol/templimit"
-    }},
-`
 if [ -d "/sys/kernel/debug/smartreflex" ]; then
     echo '{ SPane:{
               title:"SmartReflex",

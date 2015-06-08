@@ -1,0 +1,45 @@
+cat << CTAG
+{
+  name:Z-RAM Stats,
+  elements:[
+    { STitleBar:{
+        title:"Z-RAM Statistics"
+    }},
+    { SLiveLabel:{
+        title:"Compression Level",
+        refresh:1000,
+        action:"live percent /sys/block/zram0/compr_data_size /sys/block/zram0/orig_data_size"
+    }},
+    { SLiveLabel:{
+        title:"Z-RAM Used",
+        refresh:1000,
+        action:"live percent /sys/block/zram0/orig_data_size /sys/block/zram0/disksize"
+    }},
+    { SLiveLabel:{
+        title:"Swap Used",
+        refresh:1000,
+        action:"live swapused"
+    }},
+    { SLiveLabel:{
+        title:"Swap Free",
+        refresh:1000,
+        action:"live swapfree"
+    }},
+    { SLiveLabel:{
+        title:"Swap Total",
+        refresh:1000,
+        action:"live generic /sys/block/zram0/disksize"
+    }},
+    { SLiveLabel:{
+        title:"Original Data Size",
+        refresh:1000,
+        action:"live generic /sys/block/zram0/orig_data_size"
+    }},
+    { SLiveLabel:{
+        title:"Compressed Data Size",
+        refresh:1000,
+        action:"live generic /sys/block/zram0/compr_data_size"
+    }}
+  ]
+}
+CTAG
