@@ -9,7 +9,7 @@ case $1 in
 
   percent)
     if [ `cat $3` -gt 0 ]; then
-      echo "$((100 * `cat $2` / `cat $3`))%";
+      echo "$(awk -v a=`cat $2` -v b=`cat $3` 'BEGIN { printf "%.1f", a / b * 100 }')%";
     else
       echo "N/A";
     fi;
