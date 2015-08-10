@@ -90,6 +90,31 @@ if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/screen_on_min_freq" ]; then
           }},
     ';
 fi;
+if [ -e "/sys/module/cpu_boost" ]; then
+    echo '{ STitleBar:{
+              title:"CPU Boost"
+          }},
+          { SSeekBar:{
+              title:"Sync Threshold",
+              description:"When CPU load crosses a preset threshold, the CPU is raised to this frequency.",
+              default:'$(cat /sys/module/cpu_boost/parameters/sync_threshold)',
+              action:"generic /sys/module/cpu_boost/parameters/sync_threshold",
+              values:{ 0:"0: Disabled",
+    ';
+    while read FREQ TIME; do
+        LABEL=$((FREQ / 1000));
+        echo "$FREQ:\"${LABEL} MHz\", ";
+    done < /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state;
+    echo '    }
+          }},
+          { SSeekBar:{
+              title: "Boost",
+              description:"Minimum amount of time CPU is boosted.",
+              min:0, max:5000, step:10, unit:" ms",
+              action:"generic /sys/module/cpu_boost/parameters/boost_ms"
+          }},
+    ';
+fi;
 if [ -f "/sys/devices/system/cpu/sched_mc_power_savings" ]; then
     echo '{ STitleBar:{
               title:"Power Saving"

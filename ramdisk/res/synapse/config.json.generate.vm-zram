@@ -1,7 +1,12 @@
+polar_to_bool() {
+    [ `cat $1` == "Y" ] && echo "1";
+    [ `cat $1` == "N" ] && echo "0";
+}
+
 cat << CTAG
 {
 `
-if [ -e "/dev/block/zram0" ]; then
+if [ -e "/dev/block/zram0" -o -e "/sys/module/zswap" ]; then
     echo 'name:VM & Z-RAM,';
 else
     echo 'name:VM,';
@@ -200,6 +205,36 @@ if [ -e "/dev/block/zram0" ]; then
                         to:"zram zram0"
                       }
                   ]
+              }},
+        ';
+    fi;
+fi;
+if [ -e "/sys/module/zswap" ]; then
+    echo '{ STitleBar:{
+              title:"Z-Swap",
+          }},
+          { SCheckBox:{
+              label:"Z-Swap",
+              description:"Compresses swap pages in a dynamically allocated cache in RAM. Potentially improves I/O speed of swap devices at the cost of CPU to de/compress pages.",
+              default:'$(polar_to_bool /sys/module/zswap/parameters/enabled)',
+              action:"special /sys/module/zswap/parameters/enabled"
+          }},
+    ';
+    if [ -f "/sys/module/zswap/parameters/compressor" ]; then
+        echo '{ SOptionList:{
+                  title:"Compressor",
+                  default:'$(cat /sys/module/zswap/parameters/compressor)',
+                  action:"generic /sys/module/zswap/parameters/compressor",
+                  values:[ "deflate", "lzo", "lz4" ]
+              }},
+        ';
+    fi;
+    if [ -f "/sys/module/zswap/parameters/max_pool_percent" ]; then
+        echo '{ SSeekBar:{
+                  title:"Max Pool Memory Percentage",
+                  min:10, max:100, step:10, unit:"%",
+                  default:'$(cat /sys/module/zswap/parameters/max_pool_percent)',
+                  action:"generic /sys/module/zswap/parameters/max_pool_percent"
               }}
         ';
     fi;

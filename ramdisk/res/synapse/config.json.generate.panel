@@ -67,7 +67,7 @@ if [ -d "/sys/class/misc/colorcontrol" ]; then
           }},
     ';
     VALUE=0;
-    for COLOR in \`cat /sys/class/misc/colorcontrol/v1_offset\`; do
+    for COLOR in $(cat /sys/class/misc/colorcontrol/v1_offset); do
         VALUE=$((VALUE + 1));
         echo '{ SSeekBar:{ ';
         case $VALUE in

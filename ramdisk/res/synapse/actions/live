@@ -45,7 +45,7 @@ case $1 in
     if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_clock" ]; then
       GPUFREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/gpu_clock);
     elif [ -f "/sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency" ]; then
-      GPUFREQ=$(echo "$((`cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency` / 1000000)) MHz");
+      GPUFREQ="$((`cat /sys/devices/platform/omap/pvrsrvkm.0/sgxfreq/frequency` / 1000000)) MHz";
     else
       GPUFREQ=$(freq 0 gpu);
     fi;

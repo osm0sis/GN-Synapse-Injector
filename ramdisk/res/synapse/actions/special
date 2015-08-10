@@ -15,7 +15,7 @@ if [ -f $1 ]; then
       echo `cat /sys/kernel/logger_mode/logger_mode | tr -cd [0-9]`;
     ;;
 
-    /sys/module/omap_temp_sensor/parameters/throttle_enabled|/sys/module/sync/parameters/fsync_enabled)
+    /sys/module/omap_temp_sensor/parameters/throttle_enabled|/sys/module/sync/parameters/fsync_enabled|/sys/module/zswap/parameters/enabled)
       if [[ ! -z $2 ]]; then
         [ "$2" == 1 ] && echo Y > $1;
         [ "$2" == 0 ] && echo N > $1;
