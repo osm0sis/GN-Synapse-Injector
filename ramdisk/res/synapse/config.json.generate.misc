@@ -32,6 +32,31 @@ if [ -f "/sys/module/bcmdhd/parameters/wifi_pm" ]; then
           }},
     ';
 fi;
+if [ -f "/sys/class/misc/touchwake/enabled" ]; then
+    echo '{ STitleBar:{
+              title:"Touch"
+          }},
+    ';
+    if [ -f "/sys/class/misc/touchwake/enabled" ]; then
+        echo '{ SCheckBox:{
+                  label:"Touch 2 Wake",
+                  description:"T2W keeps the digitizer of the display panel active after screen timeout so it can wake the device with a touch.",
+                  default:'$(cat /sys/class/misc/touchwake/enabled)',
+                  action:"generic /sys/class/misc/touchwake/enabled"
+              }},
+        ';
+    fi;
+    if [ -f "/sys/class/misc/touchwake/delay" ]; then
+        echo '{ SSeekBar:{
+                  title:"Delay",
+                  description:"Amount of time touch inputs are registered after the screen turns off. 0 sets it to indefinitely.",
+                  min:0, max:300000, step:1000, unit:" ms",
+                  default:'$(cat /sys/class/misc/touchwake/delay)',
+                  action:"generic /sys/class/misc/touchwake/delay"
+              }},
+        ';
+    fi;
+fi;
 if [ -f "/sys/vibrator/pwmvalue" -o -f "/sys/devices/virtual/misc/soundcontrol/volume_boost" -o -f "/sys/devices/virtual/misc/soundcontrol/highperf_enabled" ]; then
     echo '{ STitleBar:{
               title:"Sound"
