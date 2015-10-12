@@ -32,6 +32,16 @@ if [ -f $1 ]; then
       echo `cat $1`;
     ;;
 
+    /sys/battery_reserve/enabled)
+      if [ "$(cat $1)" == 0 ]; then
+        echo "Battery Emergency Reserve enabled.";
+        echo 1 > $1;
+      else
+        echo "Battery Emergency Reserve disabled.";
+        echo 0 > $1;
+      fi;
+    ;;
+
     /sys/vibrator/pwmvalue)
       if [[ ! -z $2 ]]; then
         echo $2 > $1;

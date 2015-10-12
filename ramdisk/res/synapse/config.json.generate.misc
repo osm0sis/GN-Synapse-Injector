@@ -90,7 +90,7 @@ if [ -f "/sys/vibrator/pwmvalue" -o -f "/sys/devices/virtual/misc/soundcontrol/v
         ';
     fi;
 fi;
-if [ -f "/sys/class/misc/batterylifeextender/charging_limit" -o -f "/sys/kernel/fast_charge/force_fast_charge" ]; then
+if [ -f "/sys/class/misc/batterylifeextender/charging_limit" -o -f "/sys/kernel/fast_charge/force_fast_charge" -o -f "/sys/battery_reserve/enabled" ]; then
     echo '{ STitleBar:{
               title:"Charging"
           }},
@@ -111,6 +111,20 @@ if [ -f "/sys/class/misc/batterylifeextender/charging_limit" -o -f "/sys/kernel/
                   default:'$(cat /sys/kernel/fast_charge/force_fast_charge)',
                   action:"generic /sys/kernel/fast_charge/force_fast_charge",
                   values:{ 0:"0: Disabled", 1:"1", 2:"2" }
+              }},
+        ';
+    fi;
+    if [ -f "/sys/battery_reserve/enabled" ]; then
+        echo '{ SLiveLabel:{
+                  title:"Battery Emergency Reserve - Actual Level",
+                  action:"live generic /sys/battery_reserve/vcell_adj %"
+              }},
+              { SButton:{
+                  label:"Toggle Battery Emergency Reserve",
+                  action:"special /sys/battery_reserve/enabled"
+              }},
+              { SDescription:{
+                  description:"Lower the critical shutdown voltage for extra battery capacity in emergency situations where no power source is available. Active once battery level reaches 15%, stays enabled until reboot or a charger is connected. Repeated use will degrade the overall lifespan of battery cells."
               }},
         ';
     fi;

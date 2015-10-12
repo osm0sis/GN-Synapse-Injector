@@ -12,7 +12,7 @@ cat << CTAG
         default:"None",
         values:[ "None",
 `
-            for IMG in \`/res/synapse/actions/restorebackup listboot\`; do
+            for IMG in $(/res/synapse/actions/restorebackup listboot); do
                 echo "\"$IMG\",";
             done;
 `
@@ -55,7 +55,7 @@ cat << CTAG
         default:"None",
         values:[ "None",
 `
-            for BAK in \`/res/synapse/actions/restorebackup listconfig\`; do
+            for BAK in $(/res/synapse/actions/restorebackup listconfig); do
                 echo "\"$BAK\",";
             done;
 `
