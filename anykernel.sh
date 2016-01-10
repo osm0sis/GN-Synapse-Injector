@@ -106,6 +106,13 @@ replace_string() {
   fi;
 }
 
+# replace_section <file> <begin search string> <end search string> <replacement string>
+replace_section() {
+  line=`grep -n "$2" $1 | cut -d: -f1`;
+  sed -i "/${2}/,/${3}/d" $1;
+  sed -i "${line}s;^;${4}\n;" $1;
+}
+
 # insert_line <file> <if search string> <before|after> <line match string> <inserted line>
 insert_line() {
   if [ -z "$(grep "$2" $1)" ]; then
@@ -169,10 +176,10 @@ replace_file() {
   chmod $2 $1;
 }
 
-# patch_fstab <fstab file> <mount match name> <fs match type> <block|mount|fstype|options|flags> <if search string> <replacement string>
+# patch_fstab <fstab file> <mount match name> <fs match type> <block|mount|fstype|options|flags> <original string> <replacement string>
 patch_fstab() {
   entry=$(grep "$2" $1 | grep "$3");
-  if [ -z "$(echo "$entry" | grep "$5")" ]; then
+  if [ -z "$(echo "$entry" | grep "$6")" ]; then
     case $4 in
       block) part=$(echo "$entry" | awk '{ print $1 }');;
       mount) part=$(echo "$entry" | awk '{ print $2 }');;
