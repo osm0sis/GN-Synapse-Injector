@@ -68,9 +68,9 @@ if [ -f $1 ]; then
 
     /data/trimhelper)
       if [[ ! -z $2 ]]; then
-        sed -i "3s/.*/$2/" $1;
+        busybox sed -i "3s/.*/$2/" $1;
       fi;
-      echo `cat $1 | sed -n '3p'`;
+      echo `cat $1 | busybox sed -n '3p'`;
     ;;
 
     /sepolicy)

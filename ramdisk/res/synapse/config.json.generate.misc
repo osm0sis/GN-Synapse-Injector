@@ -181,7 +181,7 @@ if [ -f "/sbin/suspend_trim" ]; then
     echo '{ SCheckBox:{
               label:"Suspend Trim",
               description:"Perform filesystem trimming periodically when screen is off for over 60 seconds, to maintain I/O speeds over time.",
-              default:'$(cat /data/trimhelper | sed -n '3p')',
+              default:'$(cat /data/trimhelper | busybox sed -n '3p')',
               action:"special /data/trimhelper"
           }},
     ';
@@ -212,7 +212,7 @@ if [ -f "/sys/kernel/mm/uksm/run" ]; then
               action:"bracket-option /sys/kernel/mm/uksm/cpu_governor",
               values:[
     ';
-    for UKSMGOV in $(cat /sys/kernel/mm/uksm/cpu_governor | sed -e 's/\]//;s/\[//'); do
+    for UKSMGOV in $(cat /sys/kernel/mm/uksm/cpu_governor | busybox sed -e 's/\]//;s/\[//'); do
         echo "\"$UKSMGOV\",";
     done;
     echo '    ]

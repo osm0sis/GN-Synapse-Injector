@@ -180,7 +180,7 @@ if [ -e "/dev/block/zram0" ]; then
                   action:"bracket-option /sys/block/zram0/comp_algorithm",
                   values:[
         ';
-        for ZRCOMP in $(cat /sys/block/zram0/comp_algorithm | sed -e 's/\]//;s/\[//'); do
+        for ZRCOMP in $(cat /sys/block/zram0/comp_algorithm | busybox sed -e 's/\]//;s/\[//'); do
             echo "\"$ZRCOMP\",";
         done;
         echo '    ],

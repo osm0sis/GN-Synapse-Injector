@@ -1,5 +1,5 @@
 features=/sys/kernel/debug/sched_features;
-sched=$(echo $1 | sed 's/^NO_//g');
+sched=$(echo $1 | busybox sed 's/^NO_//g');
 
 if [[ `cat $features` == *$sched* ]]; then
 

@@ -218,7 +218,7 @@ if [ -f "/sys/kernel/debug/sched_features" ]; then
     ';
     for i in $(cat /sys/kernel/debug/sched_features); do
         echo '{ SCheckBox:{
-                  label:"'$(echo ${i//_/ } | sed 's/^NO //g')'",
+                  label:"'$(echo ${i//_/ } | busybox sed 's/^NO //g')'",
                   default:'$(/res/synapse/actions/sched $i)',
                   action:"sched '$i'"
               }},

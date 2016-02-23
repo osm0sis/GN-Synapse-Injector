@@ -6,7 +6,7 @@ cat << CTAG
         title:"Kernel Info"
     }},
 `
-    cat /proc/version | sed -e 's/ (gcc/\\ngcc/g;s/ ) /\\n/g' | while read line; do
+    cat /proc/version | busybox sed -e 's/ (gcc/\\ngcc/g;s/ ) /\\n/g' | while read line; do
         echo '{ SDescription:{
                   description:"'$line'"
               }},
