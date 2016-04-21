@@ -74,7 +74,7 @@ case $1 in
   ;;
 
   bootloader)
-    lockstate=`dd ibs=1 count=1 skip=124 obs=1 if=/dev/block/platform/omap/omap_hsmmc.0/by-name/param 2> /dev/null | od -hv | head -n 1 | awk '{ print $2 }' | cut -c 3-`;
+    lockstate=`dd ibs=1 count=1 skip=124 obs=1 if=/dev/block/platform/omap/omap_hsmmc.0/by-name/param 2>/dev/null | od -xv 2>/dev/null | head -n 1 | tr -d " " | rev | cut -c -2 | rev`;
     if [ "$lockstate" == "01" ]; then
       echo "Locked";
     elif [ "$lockstate" == "00" ]; then
