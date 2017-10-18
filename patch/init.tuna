@@ -1,5 +1,5 @@
 service uci /sbin/uci
-	class main
+	class late_start
 	user root
 	group root
 	seclabel u:r:init:s0
