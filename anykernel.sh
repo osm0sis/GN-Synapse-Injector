@@ -30,7 +30,7 @@ ramdisk_compression=auto;
 chmod -R 755 $ramdisk/*;
 chmod 644 $ramdisk/res/synapse/*;
 chmod -R 755 $ramdisk/res/synapse/actions $ramdisk/res/synapse/scripts;
-chmod -R root:root $ramdisk/*;
+chown -R root:root $ramdisk/*;
 
 
 ## AnyKernel install
