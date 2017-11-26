@@ -1,21 +1,26 @@
 if [[ ! -z $2 ]]; then
   zram_size=$2;
+  cur_size=`cat /sys/block/$1/disksize`;
 
-  persist=`cat /sys/block/$1/max_comp_streams 2>/dev/null`;
-  if [ `cat /sys/block/$1/disksize` -gt 0 ]; then
-    swapoff /dev/block/$1 > /dev/null 2>&1;
-  fi;
-  echo 1 > /sys/block/$1/reset;
-  [ "$persist" ] && echo $persist > /sys/block/$1/max_comp_streams;
-
-  if [ $zram_size -gt 0 ]; then
-    echo $((zram_size * 1024 * 1024)) > /sys/block/$1/disksize;
-    mkswap /dev/block/$1 > /dev/null 2>&1;
-    swapon /dev/block/$1 > /dev/null 2>&1;
+  if [ "$((zram_size * 1024 * 1024))" != "$cur_size" ]; then
+    persist=`cat /sys/block/$1/max_comp_streams 2>/dev/null`;
+    if [ $cur_size -gt 0 ]; then
+      swapoff /dev/block/$1 > /dev/null 2>&1 &
+    fi;
+    echo 1 > /sys/block/$1/reset || zram_size=0;
+    [ "$persist" ] && echo $persist > /sys/block/$1/max_comp_streams;
+    if [ "$zram_size" -gt 0 ]; then
+      echo $((zram_size * 1024 * 1024)) > /sys/block/$1/disksize;
+      mkswap /dev/block/$1 > /dev/null 2>&1;
+      swapon /dev/block/$1 > /dev/null 2>&1;
+    fi;
   fi;
 
 else
-  if [ -z $zram_size ]; then
+  swap_use=`free -b | grep Swap`;
+  if [ "$(echo $swap_use)" == "Swap: 0 0 0" ]; then
+    zram_size=0;
+  else
     zram_size=`cat /sys/block/$1/disksize`;
     zram_size=$((zram_size / 1024 / 1024));
   fi;

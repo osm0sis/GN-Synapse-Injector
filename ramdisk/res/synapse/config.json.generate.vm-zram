@@ -167,12 +167,6 @@ if [ -e "/dev/block/zram0" ]; then
               title:"Z-RAM",
               description:"Attempts to increase performance by compressing RAM to create a virtual swap device. Potentially frees up RAM for multitasking at the cost of CPU to de/compress pages."
           }},
-          { SSeekBar:{
-              title:"Disk Size",
-              min:0, max:384, step:8, unit:" MB",
-              default:0,
-              action:"zram zram0"
-          }},
     ';
     if [ -f "/sys/block/zram0/comp_algorithm" ]; then
         echo '{ SOptionList:{
@@ -196,9 +190,9 @@ if [ -e "/dev/block/zram0" ]; then
     if [ -f "/sys/block/zram0/max_comp_streams" ]; then
         echo '{ SSeekBar:{
                   title:"Max Compression Streams",
-                  min:1, max:5,
                   default:'$(cat /sys/block/zram0/max_comp_streams)',
                   action:"generic /sys/block/zram0/max_comp_streams",
+                  values:{ 1:"1", 2:"2", 4:"4", 8:"8", 16:"16" },
                   notify:[
                       { on:SET,
                         do:[ RESET, APPLY, REFRESH ],
@@ -208,6 +202,13 @@ if [ -e "/dev/block/zram0" ]; then
               }},
         ';
     fi;
+    echo '{ SSeekBar:{
+              title:"Disk Size",
+              min:0, max:384, step:8, unit:" MB",
+              default:0,
+              action:"zram zram0"
+          }},
+    ';
 fi;
 if [ -e "/sys/module/zswap" ]; then
     echo '{ STitleBar:{
