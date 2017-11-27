@@ -5,7 +5,14 @@ case $1 in
   multiplier)
     P=/sys/class/misc/colorcontrol/multiplier;
   ;;
+  coef)
+    P=/sys/devices/platform/omapdss/manager0/cpr_coef;
+  ;;
 esac;
+
+if [ "$P" == "/sys/devices/platform/omapdss/manager0/cpr_coef" -a "$(cat $P)" == "0 0 0 0 0 0 0 0 0" ]; then
+  echo "256 0 0 0 256 0 0 0 256" > $P;
+fi;
 
 read() {
   VALUE=0;

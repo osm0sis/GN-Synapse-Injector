@@ -80,6 +80,37 @@ if [ -d "/sys/class/misc/colorcontrol" ]; then
         ';
     done;
 fi;
+if [ -f "/sys/devices/platform/omapdss/manager0/cpr_coef" ]; then
+    echo '{ SPane:{
+              title:"Color Phase Rotation Coefficient",
+              description:"Adjust RGB color levels."
+          }},
+    ';
+    VALUE=0;
+    for COLOR in $(cat /sys/devices/platform/omapdss/manager0/cpr_coef); do
+        VALUE=$((VALUE + 1));
+        case $VALUE in
+          1|5|9)
+            echo '{ SSeekBar:{ ';
+            case $VALUE in
+                1) echo 'title:"Red"' ;;
+                5) echo 'title:"Green"' ;;
+                9) echo 'title:"Blue"' ;;
+            esac;
+            echo ', max:511,
+                    action:"color coef '${VALUE}'" }},
+            ';
+          ;;
+        esac;
+    done;
+    echo '{ SCheckBox:{
+              label:"CPR Enable",
+              description:"Enable the OMAP DSS color correction/calibration.",
+              default:'$(cat /sys/devices/platform/omapdss/manager0/cpr_enable)',
+              action:"generic /sys/devices/platform/omapdss/manager0/cpr_enable"
+          }},
+    ';
+fi;
 `
   ]
 }
