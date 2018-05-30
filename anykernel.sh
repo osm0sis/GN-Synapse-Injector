@@ -3,7 +3,7 @@
 
 ## AnyKernel setup
 # begin properties
-properties() {
+properties() { '
 kernel.string=GN Synapse Injector Add-on
 do.devicecheck=1
 do.modules=0
@@ -13,7 +13,7 @@ device.name1=maguro
 device.name2=toro
 device.name3=toroplus
 device.name4=tuna
-} # end properties
+'; } # end properties
 
 # shell variables
 block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;
